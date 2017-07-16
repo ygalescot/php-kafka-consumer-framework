@@ -1,0 +1,10 @@
+php_kafka_consumer_framework:
+    consumers:
+        my_consumer:
+            group_id: myConsumerGroup
+            brokers: [127.0.0.1, 10.0.25.4]
+            consumption_timeout_ms: 1200000
+            topic_auto_offset_reset: smallest
+            topics:
+                my_topic:
+                    partitions: [0, 2]

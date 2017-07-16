@@ -1,0 +1,20 @@
+{
+    "name": "ygalescot/php-kafka-consumer-framework",
+    "description": "An example of a Kafka consumer framework for PHP",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ygalescot",
+            "email": "youri.gales@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "kwn/php-rdkafka-stubs": "1.0.2"
+    },
+    "require": {
+        "symfony/yaml": "^3.3"
+    },
+    "autoload": {
+        "psr-4": {"PhpKafkaConsumerFramework\\": "src/"}
+    }
+}
