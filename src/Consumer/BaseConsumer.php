@@ -4,7 +4,9 @@ namespace PhpKafkaConsumerFramework\Consumer;
 
 use PhpKafkaConsumerFramework\Configuration\ConfigurationInterface;
 use PhpKafkaConsumerFramework\Processor\MessageProcessorInterface;
-use RdKafka\Message;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use \RdKafka\Message;
 
 /**
  * Class BaseConsumer
@@ -18,6 +20,11 @@ class BaseConsumer implements ConsumerInterface
      * @var ConfigurationInterface
      */
     protected $configuration;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * @var array
@@ -42,10 +49,12 @@ class BaseConsumer implements ConsumerInterface
     /**
      * BaseConsumer constructor.
      * @param ConfigurationInterface $configuration
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ConfigurationInterface $configuration)
+    public function __construct(ConfigurationInterface $configuration, LoggerInterface $logger = null)
     {
         $this->configuration = $configuration;
+        $this->logger = (null !== $logger) ? $logger : new NullLogger();
         $this->topics = $configuration->getSubscribedTopics();
         $this->partitions = $configuration->getAssignedPartitions();
         $this->kafkaConsumer = new \RdKafka\KafkaConsumer($this->configuration->getConsumerConf());
@@ -99,26 +108,32 @@ class BaseConsumer implements ConsumerInterface
 
         try {
             while (true) {
+                $this->logger->info('Consuming message...');
                 $message = $this->kafkaConsumer->consume($this->configuration->getConsumptionTimeoutMs());
                 switch ($message->err) {
                     case RD_KAFKA_RESP_ERR_NO_ERROR:
+                        $this->logger->info('Processing message...');
                         $this->handleMessageProcessing($message);
                         if ($autoCommit) {
                             $this->commit($message);
                         }
                         break;
                     case RD_KAFKA_RESP_ERR__PARTITION_EOF:
+                        $this->logger->info("No more messages; will wait for more.");
                         echo "No more messages; will wait for more\n";
                         break;
                     case RD_KAFKA_RESP_ERR__TIMED_OUT:
+                        $this->logger->info("Timed out");
                         echo "Timed out\n";
                         break;
                     default:
+                        $this->logger->error($message->errstr());
                         throw new \Exception($message->errstr(), $message->err);
                         break;
                 }
             }
         } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
             if (false === $ignoreExceptions) throw $e;
         }
     }

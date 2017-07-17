@@ -3,6 +3,7 @@
 namespace PhpKafkaConsumerFramework\Consumer;
 
 use PhpKafkaConsumerFramework\Processor\MessageProcessorInterface;
+use \RdKafka\Message;
 
 interface ConsumerInterface
 {
@@ -36,7 +37,7 @@ interface ConsumerInterface
     public function consume($ignoreExceptions = false, $autoCommit = true);
 
     /**
-     * @param Message $message
+     * @param \RdKafka\Message $message
      */
     public function commit(Message $message);
 }
