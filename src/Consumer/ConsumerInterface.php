@@ -34,4 +34,9 @@ interface ConsumerInterface
      * @param bool $autoCommit
      */
     public function consume($ignoreExceptions = false, $autoCommit = true);
+
+    /**
+     * @param Message $message
+     */
+    public function commit(Message $message);
 }

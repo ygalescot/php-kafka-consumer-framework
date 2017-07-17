@@ -5,6 +5,13 @@ namespace PhpKafkaConsumerFramework\Configuration;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Class ConfigurationLoader
+ * @package PhpKafkaConsumerFramework\Configuration
+ *
+ * This class loads the configuration from yaml and generates a new
+ * Configuration instance based on the provided consumer.
+ */
 class ConfigurationLoader
 {
     /**

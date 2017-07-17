@@ -30,7 +30,8 @@ The BaseConsumer class is a customized Kafka consumer that can:
 - add topics to consume
 - add partitions to assign
 - define a processor for each topic that will process the consumed message
-- and of course consume from the subscribed topics with their assigned partitions.
+- consume from the subscribed topics with their assigned partitions.
+- and commit message manually or let the consumer auto commit by default
 
 The handling of a topic message is performed by a MessageProcessorInterface instance added to the consumer.
 

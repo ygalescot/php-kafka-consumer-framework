@@ -4,7 +4,14 @@ namespace PhpKafkaConsumerFramework\Consumer;
 
 use PhpKafkaConsumerFramework\Configuration\ConfigurationInterface;
 use PhpKafkaConsumerFramework\Processor\MessageProcessorInterface;
+use RdKafka\Message;
 
+/**
+ * Class BaseConsumer
+ * @package PhpKafkaConsumerFramework\Consumer
+ *
+ * This is our BaseConsumer class used to generate all other consumers.
+ */
 class BaseConsumer implements ConsumerInterface
 {
     /**
@@ -95,9 +102,9 @@ class BaseConsumer implements ConsumerInterface
                 $message = $this->kafkaConsumer->consume($this->configuration->getConsumptionTimeoutMs());
                 switch ($message->err) {
                     case RD_KAFKA_RESP_ERR_NO_ERROR:
-                        $this->processors[$message->topic_name]->process($message);
+                        $this->handleMessageProcessing($message);
                         if ($autoCommit) {
-                            $this->kafkaConsumer->commit($message);
+                            $this->commit($message);
                         }
                         break;
                     case RD_KAFKA_RESP_ERR__PARTITION_EOF:
@@ -114,5 +121,27 @@ class BaseConsumer implements ConsumerInterface
         } catch (\Exception $e) {
             if (false === $ignoreExceptions) throw $e;
         }
+    }
+
+    /**
+     * @param Message $message
+     *
+     * @throws \Exception
+     */
+    protected function handleMessageProcessing(Message $message)
+    {
+        if (null === $this->getProcessor($message->topic_name)) {
+            throw new \Exception(sprintf('No processor found for %s topic messages.', $message->topic_name));
+        }
+
+        $this->getProcessor($message->topic_name)->process($message);
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function commit(Message $message)
+    {
+        $this->kafkaConsumer->commit($message);
     }
 }

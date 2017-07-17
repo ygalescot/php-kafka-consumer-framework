@@ -2,6 +2,12 @@
 
 namespace PhpKafkaConsumerFramework\Configuration;
 
+/**
+ * Class Configuration
+ * @package PhpKafkaConsumerFramework\Configuration
+ *
+ * This class handles the configuration of a consumer.
+ */
 class Configuration implements ConfigurationInterface
 {
     /**
@@ -12,18 +18,22 @@ class Configuration implements ConfigurationInterface
     /**
      * @var \RdKafka\Conf
      */
-    protected $consumerConfig;
+    protected $consumerConf;
 
     /**
      * @var \RdKafka\TopicConf
      */
-    protected $topicConfig;
+    protected $topicConf;
 
+    /**
+     * Configuration constructor.
+     * @param array $consumerConfigData
+     */
     public function __construct(array $consumerConfigData)
     {
         $this->consumerConfigData = $consumerConfigData;
-        $this->consumerConfig = new \RdKafka\Conf();
-        $this->topicConfig = new \RdKafka\TopicConf();
+        $this->consumerConf = new \RdKafka\Conf();
+        $this->topicConf = new \RdKafka\TopicConf();
     }
 
     /**
@@ -31,13 +41,15 @@ class Configuration implements ConfigurationInterface
      */
     public function getConsumerConf()
     {
-        $this->consumerConfig->set('group.id', $this->consumerConfigData['group_id']);
-        $this->consumerConfig->set('metadata.broker.list', $this->consumerConfigData['brokers']);
+        $this->consumerConf->set('group.id', $this->consumerConfigData['group_id']);
+        $this->consumerConf->set('metadata.broker.list', $this->consumerConfigData['brokers']);
 
-        $this->consumerConfig->setDefaultTopicConf($this->getTopicConf());
-        $this->consumerConfig->setRebalanceCb(function(){});
+        $this->consumerConf->setDefaultTopicConf($this->getTopicConf());
+        $this->consumerConf->setRebalanceCb(function(){
+            //TODO: Implement the rebalance callback
+        });
 
-        return $this->consumerConfig;
+        return $this->consumerConf;
     }
 
     /**
@@ -48,9 +60,9 @@ class Configuration implements ConfigurationInterface
         // Set where to start consuming messages when there is no initial offset in
         // offset store or the desired offset is out of range.
         // 'smallest': start from the beginning
-        $this->topicConfig->set('auto.offset.reset', 'smallest');
+        $this->topicConf->set('auto.offset.reset', $this->consumerConfigData['topic_auto_offset_reset']);
 
-        return $this->topicConfig;
+        return $this->topicConf;
     }
 
     /**
@@ -58,6 +70,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getSubscribedTopics()
     {
+        // TODO: retrieve the list of topics registered for the consumer
         return [];
     }
 
@@ -66,6 +79,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getAssignedPartitions()
     {
+        // TODO: retrieve the list of partitions in each topic
         return [];
     }
 
@@ -74,6 +88,6 @@ class Configuration implements ConfigurationInterface
      */
     public function getConsumptionTimeoutMs()
     {
-        return;
+        return $this->consumerConfigData['consumption_timeout_ms'];
     }
 }
